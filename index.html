@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>頂超生技經銷商 數位總部 v10.8 (RWD 行動版)</title>
+    <style>
+        :root {
+            --bg-color: #f4f5f7;
+            --text-main: #333333;
+            --text-light: #777777;
+            --border-color: #e2e8f0;
+            --card-bg: #ffffff;
+            --accent-color: #a89f91; 
+            --accent-hover: #8f8576;
+            --color-a: #ff6b6b; /* 準代理 紅 */
+            --color-b: #feca57; /* 鐵粉 黃 */
+            --color-c: #48dbfb; /* 意向客 藍 */
+            --color-d: #1dd1a1; /* 新流量 綠 */
+            --table-header: #f8fafc;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        
+        /* 側邊欄 */
+        .sidebar { width: 260px; background-color: var(--card-bg); border-right: 1px solid var(--border-color); padding: 30px 20px; display: flex; flex-direction: column; overflow-y: auto; z-index: 10;}
+        .sidebar h2 { font-size: 1.1rem; margin-bottom: 30px; color: var(--text-main);}
+        .nav-item { padding: 12px 15px; margin-bottom: 8px; border-radius: 8px; cursor: pointer; transition: all 0.2s; font-weight: 500; color: #555; display: flex; align-items: center; gap: 8px;}
+        .nav-item:hover, .nav-item.active { background-color: #f1f5f9; color: #000; font-weight: 600;}
+        .nav-item span { flex: 1; pointer-events: none; }
+        
+        .quick-links { margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 20px;}
+        .quick-links a { display: block; text-decoration: none; color: var(--text-light); font-size: 0.9rem; margin-bottom: 12px; transition: color 0.2s;}
+        .quick-links a:hover { color: var(--accent-color); }
+        
+        /* 可編輯標題 */
+        [contenteditable="true"] { outline: none; border-radius: 4px; padding: 2px 4px; transition: all 0.2s; border-bottom: 1px dashed transparent; }
+        [contenteditable="true"]:hover { background: rgba(0,0,0,0.03); }
+        [contenteditable="true"]:focus { background: #fffbeb; border-bottom: 1px dashed #fcd34d; cursor: text;}
+
+        /* 主內容區 */
+        .main-content { flex: 1; padding: 30px 40px; overflow-y: auto; position: relative;}
+        .header { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end;}
+        .header h1 { font-size: 1.8rem; margin: 0 0 8px 0; outline: none; }
+        .header p { color: var(--text-light); margin: 0; outline: none; font-size: 0.95rem;}
+        
+        /* 首頁 Banner */
+        .banner-area { aspect-ratio: 2600 / 1080; width: 100%; background: #e2e8f0; border-radius: 12px; margin-bottom: 25px; overflow: hidden; position: relative; border: 2px dashed #cbd5e1; display: flex; justify-content: center; align-items: center;}
+        .banner-img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; position: absolute; top: 0; left: 0; display: none; cursor: grab;}
+        .banner-img:active { cursor: grabbing; }
+        .banner-placeholder { color: #64748b; font-weight: 600; font-size: 1rem; z-index: 1; pointer-events: none;}
+        .banner-upload-btn { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.85); border: 1px solid #ccc; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; z-index: 2; transition: background 0.2s; color: #333;}
+        .banner-upload-btn:hover { background: rgba(255,255,255,1); box-shadow: 0 2px 5px rgba(0,0,0,0.1);}
+        .banner-hint { position: absolute; bottom: 15px; left: 15px; background: rgba(0,0,0,0.6); color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; z-index: 2; pointer-events: none; display: none;}
+
+        .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;}
+        .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: visible;}
+        .card h3 { margin-top: 0; font-size: 1.05rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; outline: none; color: #2c3e50; display: flex; justify-content: space-between; align-items: center;}
+        
+        /* 輪播 */
+        .carousel-card { position: relative; overflow: hidden; border-radius: 8px; background: #f8fafc; aspect-ratio: 1100 / 1600; width: 100%; max-height: 500px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color); margin: 0 auto;}
+        .carousel-slides { display: flex; width: 100%; height: 100%; position: absolute; top:0; left:0; }
+        .carousel-slide { width: 100%; height: 100%; object-fit: contain; background: #000; display: none; }
+        .carousel-slide.active { display: block; animation: fade 0.5s ease-in-out; }
+        @keyframes fade { from { opacity: 0.4; } to { opacity: 1; } }
+        .carousel-nav { position: absolute; top: 50%; width: 100%; display: flex; justify-content: space-between; transform: translateY(-50%); z-index: 2; pointer-events: none; padding: 0 10px; box-sizing: border-box;}
+        .carousel-nav button { background: rgba(255,255,255,0.8); color: #333; border: 1px solid #ddd; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; pointer-events: auto; display: flex; align-items: center; justify-content: center; font-weight: bold; transition: all 0.2s;}
+        .carousel-nav button:hover { background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+
+        .tab-content { display: none; animation: fadeIn 0.3s; }
+        .tab-content.active { display: block; }
+        
+        /* 表單與互動元素 */
+        .list-container { margin-bottom: 10px; }
+        .item-row { display: flex; align-items: center; justify-content: space-between; padding: 8px; border-bottom: 1px dashed var(--border-color); transition: background 0.2s;}
+        .item-row:hover { background-color: #f8fafc; border-radius: 6px; border-bottom: 1px dashed transparent;}
+        .item-content { flex: 1; display: flex; align-items: center; gap: 8px; outline: none; flex-wrap: wrap;} /* RWD 預備 */
+        
+        input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent-color); cursor: pointer; flex-shrink: 0;}
+        input[type="date"], input[type="text"] { border: 1px solid #e2e8f0; border-radius: 6px; padding: 4px 8px; font-family: inherit; font-size: 0.85rem; color: #333; outline: none; box-sizing: border-box;}
+        input.task-text { flex: 1; border: none; background: transparent; font-size: 0.9rem; width: 100%; min-width: 150px;} /* RWD 自動換行關鍵 */
+        input.task-text:focus { background-color: #fffbeb; border-bottom: 1px solid #fcd34d; }
+        
+        /* 自訂彩色 Select 標籤 (支援漸層色) - 寬度擴大確保不裁切 */
+        select { border: 1px solid #e2e8f0; border-radius: 6px; padding: 4px 8px; background-color: #fff; font-size: 0.85rem; color: #475569; cursor: pointer; outline: none; transition: all 0.2s;}
+        .task-tag-input { border: 1px solid transparent; border-radius: 20px; padding: 4px 10px; font-size: 0.85rem; font-weight: bold; text-align: center; width: 160px; outline: none; transition: all 0.2s; cursor: pointer; flex-shrink: 0;}
+        .task-tag-input:focus { border: 1px solid #cbd5e1; cursor: text;}
+        
+        textarea.multi-line-input { border: 1px solid transparent; width: 100%; font-family: inherit; font-size: 0.85rem; padding: 4px; resize: vertical; min-height: 40px; background: transparent;}
+        textarea.multi-line-input:focus { background: #fffbeb; border: 1px dashed #fcd34d; outline: none;}
+        
+        /* Memo 專屬樣式 */
+        .memo-box { background-color: #fffbc8; border: 1px solid #fde08b; border-radius: 8px; padding: 12px; font-size: 0.95rem; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); color: #333; line-height: 1.6; }
+        .memo-box:focus { background-color: #fffcd6; border-color: #fcd34d; }
+
+        /* CRM 總表排版重構 */
+        .crm-table { width: 100%; min-width: 1500px; border-collapse: collapse; font-size: 0.85rem; }
+        .crm-table th { background: var(--table-header); padding: 12px 8px; text-align: left; color: #64748b; font-weight: 600; border-bottom: 2px solid var(--border-color); position: sticky; top: 0; z-index: 5;}
+        .crm-table td { padding: 8px; border-bottom: 1px dashed var(--border-color); vertical-align: top;}
+        .crm-table input.task-text { width: 100%; }
+        .crm-table select { width: 100%; }
+        .crm-table tr:hover td { background-color: #f8fafc; }
+        .badge { color: #fff; font-size: 0.75rem; font-weight: bold; padding: 3px 8px; border-radius: 12px; text-align: center; display: inline-block;}
+        
+        .multi-board-header { display: flex; gap: 15px; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; align-items: center;}
+        .board-view-btn { background: transparent; border: none; color: var(--text-light); font-weight: 600; cursor: pointer; padding: 6px 12px; border-radius: 6px; transition: all 0.2s;}
+        .board-view-btn.active { background: #e2e8f0; color: #1e293b; }
+        .sort-btn { margin-left: auto; background: #fff; border: 1px solid var(--border-color); color: #475569; border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 0.85rem; transition: background 0.2s;}
+        
+        details.title-expand { cursor: pointer; width: 100%; }
+        details.title-expand summary { font-weight: 600; color: #2c3e50; outline: none; list-style: none; display: flex; align-items: center; width: 100%;}
+        details.title-expand summary::-webkit-details-marker { display: none; }
+        details.title-expand summary::before { content: '▶'; font-size: 0.7rem; margin-right: 6px; color: #94a3b8; transition: transform 0.2s;}
+        details.title-expand[open] summary::before { transform: rotate(90deg); }
+        .details-textarea { width: 100%; height: 80px; margin-top: 8px; border: 1px dashed var(--border-color); border-radius: 6px; padding: 8px; font-size: 0.85rem; resize: vertical; box-sizing: border-box; font-family: inherit;}
+
+        /* 靈感庫專屬卡片樣式 */
+        #inspiration-lab .item-row { background: #fff; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 15px; margin-bottom: 12px; display: flex; align-items: flex-start; box-shadow: 0 1px 2px rgba(0,0,0,0.02);}
+        #inspiration-lab details.title-expand summary { border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; margin-bottom: 8px; font-size: 1rem; }
+        #inspiration-lab .details-textarea { height: 100px; background: #f8fafc; border: 1px solid #e2e8f0; }
+        #inspiration-lab .item-content { margin-right: 15px; }
+
+        .kanban-board { display: none; gap: 15px; overflow-x: auto; padding-bottom: 10px; min-height: 400px;}
+        .kanban-column { flex: 1; min-width: 250px; background: #f8fafc; border-radius: 8px; padding: 12px; border: 1px solid var(--border-color); display: flex; flex-direction: column;}
+        .kanban-column h4 { margin: 0 0 10px 0; padding-bottom: 10px; border-bottom: 2px solid var(--border-color); text-align: center; color: #475569; outline: none;}
+        .kanban-card { background: #fff; border: 1px solid var(--border-color); border-radius: 6px; padding: 12px; margin-bottom: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);}
+
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 10px; }
+        .cal-header { text-align: center; font-weight: 600; font-size: 0.85rem; color: #64748b; padding: 5px 0; background: #f1f5f9; border-radius: 4px;}
+        .cal-day { border: 1px solid var(--border-color); min-height: 90px; padding: 5px; border-radius: 6px; background: #fff; display: flex; flex-direction: column;}
+        .cal-date { font-size: 0.8rem; font-weight: bold; color: #94a3b8; text-align: left; margin-bottom: 5px; border-bottom: 1px solid #f1f5f9;}
+        .cal-content { font-size: 0.8rem; border: none; background: transparent; resize: none; width: 100%; flex: 1; outline: none; line-height: 1.4;}
+        .cal-content:focus { background: #fdf8e4; }
+
+        .btn-delete { cursor: pointer; opacity: 0.3; transition: all 0.2s; font-size: 0.9rem; padding: 4px; border: none; background: transparent; margin-top: 5px;}
+        .item-row:hover .btn-delete, tr:hover .btn-delete, .kanban-card:hover .btn-delete { opacity: 1; }
+        .btn-delete:hover { transform: scale(1.1); color: red; }
+        .btn-add { display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; background-color: #f1f5f9; color: #475569; border-radius: 6px; font-size: 0.85rem; cursor: pointer; border: 1px dashed #cbd5e1; font-weight: 600; transition: all 0.2s; margin-top: 5px; width: 100%; box-sizing: border-box;}
+        .btn-add:hover { background-color: #e2e8f0; border-style: solid;}
+        
+        .alert-text { color: #e74c3c !important; font-weight: bold; }
+        .save-indicator { font-size: 0.8rem; color: #10b981; opacity: 0; transition: opacity 0.3s;}
+
+        /* 銷貨單列印專用樣式 */
+        #print-area { display: none; }
+        @media print {
+            body * { visibility: hidden; }
+            #print-area, #print-area * { visibility: visible; }
+            #print-area { display: block; position: absolute; left: 0; top: 0; width: 100%; font-family: "Microsoft JhengHei", sans-serif; color: #000; box-sizing: border-box;}
+            .print-page { padding: 30px; box-sizing: border-box; page-break-after: always; }
+            .print-page:last-child { page-break-after: auto; }
+            .print-header { text-align: center; border-bottom: 2px solid #000; margin-bottom: 20px; padding-bottom: 15px; }
+            .print-header h2 { margin: 0 0 5px 0; letter-spacing: 3px; font-size: 24px;}
+            .print-header h3 { margin: 0; font-weight: normal; font-size: 16px;}
+            .print-info { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 14px;}
+            .print-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px;}
+            .print-table th { background-color: #f4f5f7 !important; -webkit-print-color-adjust: exact;}
+            .print-table th, .print-table td { border: 1px solid #333; padding: 12px; text-align: left; }
+            .print-footer { margin-top: 30px; font-size: 14px; line-height: 1.8;}
+            .signature-box { text-align: right; margin-top: 40px; }
+        }
+
+        /* ================= 📱 手機版 RWD 響應式設計 ================= */
+        @media (max-width: 768px) {
+            body { flex-direction: column; overflow-y: auto; display: block; }
+            
+            /* 側邊欄變為頂部滑動導覽列 */
+            .sidebar { width: 100%; padding: 10px 15px; border-right: none; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: row; overflow-x: auto; z-index: 100; position: sticky; top: 0; background: var(--card-bg); align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+            .sidebar h2 { display: none; }
+            .quick-links { display: none; }
+            .nav-item { flex: 0 0 auto; margin-right: 10px; margin-bottom: 0; padding: 8px 12px; font-size: 0.9rem; }
+            
+            /* 主內容區滿版 */
+            .main-content { padding: 15px; overflow-y: visible; }
+            .header { flex-direction: column; align-items: flex-start; }
+            .header h1 { font-size: 1.5rem; margin-bottom: 5px; }
+            .header p { font-size: 0.85rem; }
+            .save-indicator { margin-top: 10px; align-self: flex-start; }
+            
+            /* 卡片與網格改為單欄 */
+            .grid-container { grid-template-columns: 1fr; gap: 15px; margin-bottom: 15px; }
+            .card { padding: 15px; border-radius: 8px; }
+            .card h3 { font-size: 1rem; }
+            
+            /* 任務列表智慧換行 */
+            .item-content { flex-wrap: wrap; gap: 8px 5px; }
+            input[type="date"] { flex: 1; min-width: 110px; padding: 6px;}
+            .task-tag-input { flex: 1; min-width: 140px; width: auto !important; padding: 6px; }
+            /* 任務文字強制換行，並加入底色與縮排對齊 */
+            input.task-text { flex: 1 1 100%; margin-left: 24px; background: #f8fafc; padding: 8px 10px; border-radius: 6px; border: 1px solid #f1f5f9; }
+            input.task-text:focus { background-color: #fffbeb; border-color: #fcd34d; }
+            
+            /* 行銷靈感庫與文案切換按鈕 */
+            .multi-board-header { flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+            .board-view-btn { flex: 1 1 calc(50% - 8px); text-align: center; font-size: 0.85rem; padding: 8px; }
+            .sort-btn { flex: 1 1 100%; text-align: center; margin-left: 0; }
+            
+            /* AI 工具區塊單欄顯示 */
+            #insp-ai .grid-container { grid-template-columns: 1fr; gap: 10px;}
+            #insp-ai .grid-container > div { grid-column: span 1 !important; padding: 12px; }
+            
+            /* 輪播與 Banner 高度調整 */
+            .banner-area { aspect-ratio: 16 / 9; border-radius: 8px; margin-bottom: 15px; }
+            .carousel-card { max-height: 400px; }
+            
+            /* 刪除按鈕稍微變大方便觸控 */
+            .btn-delete { opacity: 0.6; font-size: 1.1rem; padding: 8px; margin-top: 0; }
+            .btn-add { padding: 10px; font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="print-area"></div>
+
+    <datalist id="task-tags-list">
+        <option value="Threads"></option>
+        <option value="FB"></option>
+        <option value="IG限時動態"></option>
+        <option value="回訪客戶"></option>
+        <option value="其他"></option>
+    </datalist>
+
+    <div class="sidebar">
+        <h2>頂超生技經銷商 丟丟</h2>
+        <div class="nav-item active" onclick="switchTab('dashboard', this)">🏠 <span>首頁與儀表板</span></div>
+        <div class="nav-item" onclick="switchTab('content-lab', this)">✍️ <span>社群文案看板</span></div>
+        <div class="nav-item" onclick="switchTab('reels-lab', this)">🎬 <span>Reels 靈感專區</span></div>
+        <div class="nav-item" onclick="switchTab('inspiration-lab', this)">💡 <span>社群行銷靈感庫</span></div>
+        <div class="nav-item" onclick="switchTab('crm', this)">🤝 <span>客戶追蹤總表</span></div>
+        <div class="nav-item" onclick="switchTab('resources', this)">📦 <span>產品庫存與再行銷</span></div>
+        <div class="nav-item" onclick="switchTab('review', this)">🧘‍♀️ <span>每週復盤分析</span></div>
+        
+        <div class="quick-links">
+            <div style="font-weight:bold; margin-bottom:15px; color: #333; font-size: 0.95rem;">🔗 頂超專屬傳送門</div>
+            <a href="https://www.topsuperwoman.com.tw/" target="_blank">🌐 頂超生技官網</a>
+            <a href="https://sw.top-superwoman.com.tw/login" target="_blank">📦 經銷商訂貨系統</a>
+            
+            <div style="font-weight:bold; margin:20px 0 10px 0; color: #333; font-size: 0.95rem;">🤖 AI 助理</div>
+            <a href="https://gemini.google.com" target="_blank">✨ Gemini AI</a>
+            <a href="https://claude.ai" target="_blank">🧠 Claude AI</a>
+            <a href="https://www.perplexity.ai/" target="_blank">🔎 Perplexity AI</a>
+            <a href="https://jimeng.jianying.com/" target="_blank">🎨 即夢 AI</a>
+        </div>
+    </div>
+
+    <div class="main-content" id="save-container">
+        
+        <div id="dashboard" class="tab-content active">
+            <div class="banner-area">
+                <div class="banner-placeholder" id="banner-text">首頁 BN 看板 (建議比例 2600x1080)</div>
+                <img id="dashboard-banner-img" class="banner-img" src="" style="object-position: 50% 50%;">
+                <div class="banner-hint" id="banner-hint">↕ 滑鼠上下拖曳可調整圖片顯示位置</div>
+                <button onclick="document.getElementById('banner-upload').click()" class="banner-upload-btn">更換圖片</button>
+                <input type="file" id="banner-upload" accept="image/*" style="display:none;" onchange="uploadBanner(event)">
+            </div>
+
+            <div class="header">
+                <div>
+                    <h1 contenteditable="true" id="title-main">溫和自律，高效產出 ☕</h1>
+                    <p contenteditable="true" id="title-sub">將瑣碎日常系統化，把精力留給真實的分享與陪伴。</p>
+                </div>
+                <span class="save-indicator" id="save-msg">已自動儲存 ✔</span>
+            </div>
+            
+            <div class="grid-container">
+                <div class="column">
+                    <div class="card" style="margin-bottom: 20px;">
+                        <h3 id="title-big3" contenteditable="true">⚡ 今日核心 Big 3 任務</h3>
+                        <div class="list-container" id="task-list">
+                            </div>
+                        <button class="btn-add" onclick="addTaskItem('task-list')">+ 新增核心任務</button>
+                    </div>
+
+                    <div class="card" style="margin-bottom: 20px;">
+                        <h3 id="title-interaction" contenteditable="true">🔥 頂超今日互動任務 ♥</h3>
+                        <div class="list-container" id="interaction-list">
+                            <div class="item-row">
+                                <div class="item-content">
+                                    <input type="checkbox">
+                                    <select><option selected>群組打卡貼文</option><option>FB 限動互動</option><option>社群留言</option><option>Line 私訊</option><option>自訂任務</option></select>
+                                    <input type="text" class="task-text" value="完成團隊早安打卡">
+                                </div>
+                                <button class="btn-delete" onclick="removeItem(this)">🗑️</button>
+                            </div>
+                        </div>
+                        <button class="btn-add" onclick="addInteractionItem()">+ 新增互動任務</button>
+                    </div>
+
+                    <div class="card">
+                        <h3 id="title-memo" contenteditable="true">📝 隨手記 Memo</h3>
+                        <textarea id="home-memo" class="multi-line-input memo-box" style="height: 140px;" placeholder="在這裡寫下臨時的靈感、待辦事項或是客戶提醒..."></textarea>
+                    </div>
+                </div>
+
+                <div class="column">
+                    <div class="card" style="margin-bottom: 20px;">
+                        <h3 id="title-poster" contenteditable="true">🎉 頂超活動海報看板 (1100x1600)</h3>
+                        <div class="carousel-card" id="poster-carousel">
+                            <div class="carousel-slides" id="carousel-slides-container"></div>
+                            <div class="carousel-nav"><button onclick="prevSlide(event)">❮</button><button onclick="nextSlide(event)">❯</button></div>
+                        </div>
+                        <div style="margin-top: 10px; display: flex; gap: 10px;">
+                            <button class="btn-add" style="flex:1;" onclick="document.getElementById('poster-upload').click()">+ 上傳活動海報</button>
+                            <button class="btn-add" style="flex:1; background:#fee2e2; color:#ef4444; border-color:#fca5a5;" onclick="clearPosters()">🗑️ 清空輪播</button>
+                            <input type="file" id="poster-upload" accept="image/*" multiple style="display:none;" onchange="uploadPosters(event)">
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-bottom: 20px;">
+                        <h3 id="title-crm-alert" contenteditable="true">📅 3-7-21 CRM 關懷提醒 (今日)</h3>
+                        <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 5px;">🔄 系統自動同步 (來自追蹤表)</div>
+                        <div class="list-container" id="crm-auto-list" style="background:#f8fafc; border-radius:6px; padding:5px; margin-bottom: 15px; border:1px solid #e2e8f0;"></div>
+
+                        <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 5px;">✍️ 手動新增提醒</div>
+                        <div class="list-container" id="crm-reminder-list">
+                            <div class="item-row"><div class="item-content"><span class="badge" style="background:#ffcc00;">D3 確認</span> <input type="text" class="task-text" value="陳太太 (確認速纖凍收到沒)"></div><button class="btn-delete" onclick="removeItem(this)">🗑️</button></div>
+                        </div>
+                        <button class="btn-add" onclick="addCRMReminderItem()">+ 新增手動提醒</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 id="title-cal" contenteditable="true">🎓 商學院培訓計劃 (全月預覽模式)</h3>
+                <div class="calendar-grid" id="full-calendar"></div>
+            </div>
+        </div>
+
+        <div id="content-lab" class="tab-content">
+            <div class="header">
+                <h1 id="title-content-1" contenteditable="true">社群文案看板 ✍️</h1>
+                <p id="title-content-2" contenteditable="true">多維表格：點擊看板視圖，將會自動把下方的表格文案轉為精美卡片。</p>
+            </div>
+            
+            <div class="card" style="overflow-x: auto; min-height: 500px;">
+                <div class="multi-board-header">
+                    <button class="board-view-btn active" onclick="toggleView('content', 'table', this)">📋 總表視圖 (輸入區)</button>
+                    <button class="board-view-btn" onclick="toggleView('content', 'kanban', this)">📌 狀態看板 (連動展示區)</button> 
+                    <button class="sort-btn" id="content-sort-btn" onclick="sortContentTable()">📅 日期排序 (由遠到近)</button>
+                </div>
+                
+                <table class="crm-table" id="content-table-view">
+                    <thead>
+                        <tr>
+                            <th style="width: 35%;">標題 / 內文預覽 (點擊展開)</th>
+                            <th style="width: 15%;">發布平台</th>
+                            <th style="width: 15%;">內容類型</th>
+                            <th style="width: 15%;">狀態</th>
+                            <th style="width: 15%;">預計發布日</th>
+                            <th style="width: 5%;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="content-table-body">
+                        <tr>
+                            <td><details class="title-expand"><summary><input type="text" class="task-text" value="關於女性 30 歲後的代謝改變"></summary><textarea class="details-textarea" placeholder="在這裡輸入社群貼文的詳細內容..."></textarea></details></td>
+                            <td><select><option selected>Threads</option><option>FB 粉專</option><option>IG Reels</option><option>Line 社群</option></select></td>
+                            <td><select><option selected>專業乾貨</option><option>真實故事</option><option>產品推薦</option><option>互動問答</option></select></td>
+                            <td><select><option>💡 靈感庫</option><option>✍️ 撰寫中</option><option>⏳ 待排程</option><option selected>✅ 已發布</option></select></td>
+                            <td><input type="date" value="2026-04-15"></td>
+                            <td><button class="btn-delete" onclick="removeItem(this)">🗑️</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="kanban-board" id="content-kanban-view">
+                    <div class="kanban-column"><h4>💡 靈感庫</h4><div id="kb-col-1" class="kb-container"></div></div>
+                    <div class="kanban-column"><h4>✍️ 撰寫中</h4><div id="kb-col-2" class="kb-container"></div></div>
+                    <div class="kanban-column"><h4>⏳ 待排程</h4><div id="kb-col-3" class="kb-container"></div></div>
+                    <div class="kanban-column"><h4>✅ 已發布</h4><div id="kb-col-4" class="kb-container"></div></div>
+                </div>
+                <button class="btn-add" id="content-add-btn" onclick="addContentRow()">+ 新增文案紀錄</button>
+            </div>
+        </div>
+
+        <div id="reels-lab" class="tab-content">
+            <div class="header">
+                <h1 id="title-reels-1" contenteditable="true">Reels 靈感專區 🎬</h1>
+                <p id="title-reels-2" contenteditable="true">專門管理短影音的腳本、畫面構思與拍攝進度。</p>
+            </div>
+            
+            <div class="card" style="overflow-x: auto; min-height: 500px;">
+                <table class="crm-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 35%;">影片標題 / 腳本大綱 (點擊展開)</th>
+                            <th style="width: 15%;">發布平台</th>
+                            <th style="width: 15%;">影片類型</th>
+                            <th style="width: 15%;">狀態</th>
+                            <th style="width: 15%;">預計拍攝日</th>
+                            <th style="width: 5%;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reels-table-body">
+                        <tr>
+                            <td><details class="title-expand"><summary><input type="text" class="task-text" value="30秒教你如何溫和自律"></summary><textarea class="details-textarea" placeholder="Hook: ...&#10;Body: ...&#10;CTA: ..."></textarea></details></td>
+                            <td><select><option selected>IG Reels</option><option>FB Reels</option><option>YouTube Shorts</option><option>TikTok</option></select></td>
+                            <td><select><option selected>乾貨分享</option><option>日常 Vlog</option><option>產品展示</option><option>跟風搞笑</option></select></td>
+                            <td><select><option selected>💡 腳本構思中</option><option>🎬 待拍攝</option><option>✂️ 剪輯中</option><option>✅ 已完成</option></select></td>
+                            <td><input type="date" value="2026-04-18"></td>
+                            <td><button class="btn-delete" onclick="removeItem(this)">🗑️</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button class="btn-add" onclick="addReelsRow()">+ 新增 Reels 靈感</button>
+            </div>
+        </div>
+
+        <div id="inspiration-lab" class="tab-content">
+            <div class="header">
+                <h1 id="title-insp-1" contenteditable="true">社群行銷靈感庫 💡</h1>
+                <p id="title-insp-2" contenteditable="true">系統化歸納成交 SOP、AI 工具指令與金句。點擊標題即可展開填寫詳細筆記。</p>
+            </div>
+            
+            <div class="card" style="min-height: 500px;">
+                <div class="multi-board-header">
+                    <button class="board-view-btn active" onclick="switchSubTab('insp-sop', this)">💼 成交 SOP</button>
+                    <button class="board-view-btn" onclick="switchSubTab('insp-ai', this)">🤖 AI 工具</button>
+                    <button class="board-view-btn" onclick="switchSubTab('insp-quotes', this)">💡 金句靈感庫</button>
+                </div>
+                
+                <div id="insp-sop" class="sub-tab-content">
+                    <h3 id="title-sop-sub" contenteditable="true" style="margin-top: 15px;">成交 SOP 模組</h3>
+                    <div class="list-container" id="insp-sop-list">
+                        <div class="item-row"><div class="item-content"><details class="title-expand"><summary><input type="text" class="task-text" value="新人第一次詢問回覆範本"></summary><textarea class="details-textarea" placeholder="在這裡輸入 SOP 詳細內容與話術..."></textarea></details></div><button class="btn-delete" onclick="removeItem(this)">🗑️</button></div>
+                    </div>
+                    <button class="btn-add" onclick="addInspirationItem('insp-sop-list', '新增成交 SOP 標題...')">+ 新增 SOP</button>
+                </div>
+
+                <div id="insp-ai" class="sub-tab-content" style="display:none;">
+                    <div class="grid-container" style="gap: 15px; margin-bottom: 0;">
+                        <div style="border:1px solid #e2e8f0; border-radius:8px; padding:15px;">
+                            <h3 contenteditable="true" style="font-size:1rem;">🔥 爆款開頭</h3>
+                            <div class="list-container" id="ai-list-1"><div class="item-row"><div class="item-content"><details class="title-expand"><summary><input type="text" class="task-text" value="30歲後你必須知道的秘密..."></summary><textarea class="details-textarea" placeholder="輸入延伸內容..."></textarea></details></div><button class="btn-delete" onclick="removeItem(this)">🗑️</button></div></div>
+                            <button class="btn-add" onclick="addInspirationItem('ai-list-1', '新增開頭標題...')">+ 新增</button>
+                        </div>
+                        <div style="border:1px solid #e2e8f0; border-radius:8px; padding:15px;">
+                            <h3 contenteditable="true" style="font-size:1rem;">🔍 AI 拆解</h3>
+                            <div class="list-container" id="ai-list-2"><div class="item-row"><div class="item-content"><details class="title-expand"><summary><input type="text" class="task-text" value="拆解爆款對標帳號結構"></summary><textarea class="details-textarea" placeholder="輸入拆解筆記..."></textarea></details></div><button class="btn-delete" onclick="removeItem(this)">🗑️</button></div></div>
+                            <button class="btn-add" onclick="addInspirationItem('ai-list-2', '新增拆解標題...')">+ 新增</button>
+                        </div>
+                        <div style="border:1px solid #e2e8f0; border-radius:8px; padding:15px;">
+                            <h3 contenteditable="true" style="font-size:1rem;">🌪️ 行銷漏斗</h3>
+                            <div class="list-container" id="ai-list-3"><div class="item-row"><div class="item-content"><details class="title-expand"><summary><input type="text" class="task-text" value="引流 -> 信任 -> 成交"></summary><textarea class="details-textarea" placeholder="輸入漏斗設計..."></textarea></details></div><button class="btn-delete" onclick="removeItem(this)">🗑️</button></div></div>
+                            <button class="btn-add" onclick="addInspirationItem('ai-list-3', '新增漏斗筆記標題...')">+ 新增</button>
+                        </div>
+                        <div style="border:1px solid #e2e8f0; border-radius:8px; padding:15px;">
+                            <h3 contenteditable="true" style="font-size:1rem;">🧠 Claude 社群規劃師</h3>
+                            <div class="list-container" id="ai-list-4"><div class="item-row"><div class="item-content"><details class="title-expand"><summary><input type="text" class="task-text" value="本月主題大綱指令 Prompt"></summary><textarea class="details-textarea" placeholder="輸入完整的 Claude 指令..."></textarea></details></div><button class="btn-delete" onclick="removeItem(this)">🗑️</button></div></div>
+                            <button class="btn-add" onclick="addInspirationItem('ai-list-4', '新增規劃指令標題...')">+ 新增</button>
+                        </div>
+                        <div style="border:1px solid #e2e8f0; border-radius:8px; padding:15px; grid-column: span 2;">
+                            <h3 contenteditable="true" style="font-size:1rem;">🎨 即夢 (Jimeng)</h3>
+                            <div class="list-container" id="ai-list-5"><div class="item-row"><div class="item-content"><details class="title-expand"><summary><input type="text" class="task-text" value="保養品去背與質感底圖生成指令"></summary><textarea class="details-textarea" placeholder="輸入即夢算圖的關鍵字與設定..."></textarea></details></div><button class="btn-delete" onclick="removeItem(this)">🗑️</button></div></div>
+                            <button class="btn-add" onclick="addInspirationItem('ai-list-5', '新增繪圖指令標題...')">+ 新增</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="insp-quotes" class="sub-tab-content" style="display:none;">
+                    <h3 contenteditable="true" style="margin-top: 15px;">金句靈感庫</h3>
+                    <div class="list-container" id="insp-quotes-list">
+                        <div class="item-row"><div class="item-content"><details class="title-expand"><summary><input type="text" class="task-text" value="把習慣變得像呼吸一樣自然。"></summary><textarea class="details-textarea" placeholder="輸入金句背後的故事或使用情境..."></textarea></details></div><button class="btn-delete" onclick="removeItem(this)">🗑️</button></div>
+                    </div>
+                    <button class="btn-add" onclick="addInspirationItem('insp-quotes-list', '新增金句標題...')">+ 新增金句</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="crm" class="tab-content">
+            <div class="header">
+                <h1 id="title-crm-1" contenteditable="true">客戶追蹤總表 🤝</h1>
+                <p id="title-crm-2" contenteditable="true">勾選最前方的欄位，即可一鍵列印/下載專業銷貨單。填入「下單日期」自動計算 3-7-21 回訪日。</p>
+            </div>
+            
+            <div class="card" style="overflow-x: auto;">
+                <button class="btn-add" style="margin-bottom: 15px; background:#e8f4fd; color:#0066cc; border-color:#0066cc;" onclick="printSelectedInvoices()">🖨️ 列印/下載 已勾選之銷貨單</button>
+                
+                <table class="crm-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 3%; text-align:center;">選</th>
+                            <th style="width: 7%;">等級</th>
+                            <th style="width: 8%;">客戶姓名</th>
+                            <th style="width: 8%;">聯絡方式</th>
+                            <th style="width: 18%;">購買商品與數量</th>
+                            <th style="width: 7%;">成交金額</th>
+                            <th style="width: 9%;">痛點分類</th>
+                            <th style="width: 9%;">下單日期(起算)</th>
+                            <th style="width: 6%;">D3確認</th>
+                            <th style="width: 6%;">D7體驗</th>
+                            <th style="width: 6%;">D21習慣</th>
+                            <th style="width: 9%;">備註欄</th>
+                            <th style="width: 4%;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="crm-table-body">
+                        <tr>
+                            <td style="text-align:center;"><input type="checkbox" class="crm-check" style="width: 18px; height: 18px; cursor: pointer;"></td>
+                            <td><select onchange="updateBadgeColor(this)" style="font-weight:bold; color:var(--color-b);"><option value="A" style="color:var(--color-a);">A 準代理</option><option value="B" style="color:var(--color-b);" selected>B 鐵粉</option><option value="C" style="color:var(--color-c);">C 意向客</option><option value="D" style="color:var(--color-d);">D 新流量</option></select></td>
+                            <td><input type="text" class="task-text crm-name" value="陳太太"></td>
+                            <td><select class="crm-contact"><option>FB 暱稱</option><option selected>Line</option><option>IG</option><option>電話</option></select></td>
+                            <td><textarea class="multi-line-input crm-item" placeholder="例: 速纖凍x2&#10;奶茶x1">速纖凍 x 2&#10;奶茶 x 1</textarea></td>
+                            <td><input type="text" class="task-text crm-amount" value="$3,500"></td>
+                            <td><input type="text" class="task-text crm-pain" value="產後代謝慢"></td>
+                            <td><input type="date" class="crm-date" value="2026-04-13" onchange="calc3721(this)" style="width:100%;"></td>
+                            <td class="d3-cell alert-text">04/16</td><td class="d7-cell">04/20</td><td class="d21-cell">05/04</td>
+                            <td><textarea class="multi-line-input crm-remark" placeholder="備註...">喜歡晚上聯絡</textarea></td>
+                            <td><button class="btn-delete" onclick="removeItem(this)">🗑️</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button class="btn-add" onclick="addCRMRow()">+ 新增客戶資料</button>
+            </div>
+        </div>
+
+        <div id="resources" class="tab-content">
+            <div class="header"><h1 id="title-res-1" contenteditable="true">產品庫存盤點和再行銷 📦</h1></div>
+            <div class="card"><h3 id="title-res-2" contenteditable="true">💬 庫存備註與行銷規劃</h3>
+                <div class="list-container" id="sop-list"><div class="item-row"><div class="item-content"><input type="text" class="task-text" value="月底清點速纖凍庫存並規劃促銷"></div><button class="btn-delete" onclick="removeItem(this)">🗑️</button></div></div>
+                <button class="btn-add" onclick="addSimpleItem('sop-list', '輸入紀錄...')">+ 新增紀錄</button>
+            </div>
+        </div>
+
+        <div id="review" class="tab-content">
+            <div class="header"><h1 id="title-rev-1" contenteditable="true">每週復盤分析 🧘‍♀️</h1></div>
+            <div class="card">
+                <h3 id="title-rev-2" contenteditable="true">📊 靈感與檢討紀錄</h3>
+                <button class="btn-add" style="background:#e8f4fd; color:#0066cc; border-color:#0066cc; margin-bottom:15px;" onclick="generateWeeklyReview()">✨ 一鍵匯總本週數據並生成分析範本</button>
+                <textarea id="review-textarea" style="width:100%; height: 350px; padding:15px; border:1px solid #e2e8f0; border-radius:8px; font-family:inherit; resize:vertical; line-height: 1.6;" placeholder="點擊上方按鈕自動生成..."></textarea>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function getTodayStr() { const tzoffset = (new Date()).getTimezoneOffset() * 60000; return (new Date(Date.now() - tzoffset)).toISOString().split('T')[0]; }
+        function getTodayFmt() { const d = new Date(); return `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`; }
+
+        // ================= JSON 儲存與超級救援系統 =================
+        const storageKey = 'brandOS_state_v10_8';
+
+        function saveToLocal() {
+            const titleMap = {};
+            document.querySelectorAll('[contenteditable="true"]').forEach(el => {
+                if(el.id) titleMap[el.id] = el.innerHTML;
+            });
+
+            const data = {
+                tasks: document.getElementById('task-list').innerHTML,
+                interactions: document.getElementById('interaction-list').innerHTML,
+                crmReminders: document.getElementById('crm-reminder-list').innerHTML,
+                calendar: document.getElementById('full-calendar').innerHTML,
+                contentTable: document.getElementById('content-table-body').innerHTML,
+                reelsTable: document.getElementById('reels-table-body').innerHTML,
+                crmTable: document.getElementById('crm-table-body').innerHTML,
+                sop: document.getElementById('sop-list').innerHTML,
+                inspiration: document.getElementById('inspiration-lab').innerHTML,
+                review: document.getElementById('review-textarea').value,
+                memo: document.getElementById('home-memo').value,
+                titleMap: titleMap,
+                bannerSrc: document.getElementById('dashboard-banner-img').src,
+                bannerPos: document.getElementById('dashboard-banner-img').style.objectPosition,
+                posters: document.getElementById('carousel-slides-container').innerHTML
+            };
+            localStorage.setItem(storageKey, JSON.stringify(data));
+            const msg = document.getElementById('save-msg');
+            if(msg) { msg.style.opacity = '1'; setTimeout(() => { msg.style.opacity = '0'; }, 1000); }
+        }
+
+        function loadFromLocal() {
+            const str = localStorage.getItem(storageKey) 
+                     || localStorage.getItem('brandOS_state_v10_7')
+                     || localStorage.getItem('brandOS_state_v10_6')
+                     || localStorage.getItem('brandOS_state_v10_5')
+                     || localStorage.getItem('brandOS_state_v10_4')
+                     || localStorage.getItem('brandOS_state_v10_3')
+                     || localStorage.getItem('brandOS_state_v10_2')
+                     || localStorage.getItem('brandOS_state_v10');
+
+            if(str) {
+                const data = JSON.parse(str);
+                if(data.tasks) document.getElementById('task-list').innerHTML = data.tasks;
+                if(data.interactions) document.getElementById('interaction-list').innerHTML = data.interactions;
+                if(data.crmReminders) document.getElementById('crm-reminder-list').innerHTML = data.crmReminders;
+                if(data.calendar) document.getElementById('full-calendar').innerHTML = data.calendar;
+                if(data.contentTable) document.getElementById('content-table-body').innerHTML = data.contentTable;
+                if(data.reelsTable) document.getElementById('reels-table-body').innerHTML = data.reelsTable;
+                if(data.crmTable) document.getElementById('crm-table-body').innerHTML = data.crmTable;
+                if(data.sop) document.getElementById('sop-list').innerHTML = data.sop;
+                if(data.inspiration) document.getElementById('inspiration-lab').innerHTML = data.inspiration;
+                if(data.review) document.getElementById('review-textarea').value = data.review;
+                if(data.memo) document.getElementById('home-memo').value = data.memo;
+                if(data.posters) document.getElementById('carousel-slides-container').innerHTML = data.posters;
+                
+                if(data.titleMap) {
+                    for(let id in data.titleMap) {
+                        const el = document.getElementById(id);
+                        if(el) el.innerHTML = data.titleMap[id];
+                    }
+                }
+
+                if(data.bannerSrc && data.bannerSrc.length > 10) {
+                    const img = document.getElementById('dashboard-banner-img');
+                    img.src = data.bannerSrc;
+                    img.style.objectPosition = data.bannerPos || '50% 50%';
+                    img.style.display = 'block';
+                    document.getElementById('banner-text').style.display = 'none';
+                    document.getElementById('banner-hint').style.display = 'block';
+                }
+            } else { 
+                generateCalendar(); 
+            }
+
+            // 強制重構引擎，套用精確的新下拉選單格式並兼容 RWD
+            forceUpgradeTaskLayout(); 
+            upgradeCRMTo3721();  
+            syncCRMToDashboard(); 
+            initCarousel();
+            saveToLocal(); 
+        }
+
+        // ================= IG 漸層與任務標籤自動上色 =================
+        function updateTaskColor(inputEl) {
+            const val = inputEl.value || '';
+            let bg = '#e2e8f0', color = '#333';
+            inputEl.style.backgroundImage = 'none'; 
+
+            if(val.includes('Threads')) { bg = '#000000'; color = '#fff'; }
+            else if(val.includes('FB')) { bg = '#1877f2'; color = '#fff'; }
+            else if(val.includes('IG')) { 
+                bg = 'transparent'; 
+                // IG 專屬漸層色
+                inputEl.style.backgroundImage = 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)'; 
+                color = '#fff'; 
+            }
+            else if(val.includes('回訪')) { bg = '#10b981'; color = '#fff'; }
+            else if(val.trim().length > 0) { bg = '#f59e0b'; color = '#fff'; } // 其他自訂文字預設為活力橘
+            
+            inputEl.style.backgroundColor = bg;
+            inputEl.style.color = color;
+            saveToLocal();
+        }
+
+        // ================= 強制重構引擎 =================
+        function forceUpgradeTaskLayout() {
+            const taskList = document.getElementById('task-list');
+            if(!taskList) return;
+
+            if(taskList.children.length === 0) {
+                addTaskItem('task-list');
+                return;
+            }
+
+            document.querySelectorAll('#task-list .item-row').forEach(row => {
+                const content = row.querySelector('.item-content');
+                if(!content) return;
+
+                const cb = content.querySelector('input[type="checkbox"]');
+                const cbChecked = cb ? cb.checked : false;
+
+                const dateInput = content.querySelector('input[type="date"]');
+                const dateVal = dateInput ? dateInput.value : getTodayStr();
+
+                const selectEl = content.querySelector('select');
+                const tagInputEl = content.querySelector('.task-tag-input');
+                let tagVal = "Threads"; // 預設改為更簡潔的精確字眼
+                if (tagInputEl) tagVal = tagInputEl.value;
+                else if (selectEl) tagVal = selectEl.value;
+                
+                // 替換舊版多餘文字，讓版面更漂亮
+                if(tagVal === "發布 Threads 貼文") tagVal = "Threads";
+                if(tagVal === "FB貼文") tagVal = "FB";
+
+                const textInput = content.querySelector('.task-text');
+                const textVal = textInput ? textInput.value : "";
+
+                content.innerHTML = `
+                    <input type="checkbox" ${cbChecked ? 'checked' : ''}>
+                    <input type="date" value="${dateVal}" style="width: 120px;">
+                    <input type="text" list="task-tags-list" class="task-tag-input" oninput="updateTaskColor(this)" onchange="updateTaskColor(this)" value="${tagVal}" placeholder="選取或輸入...">
+                    <input type="text" class="task-text" value="${textVal}" placeholder="細節或自訂內容...">
+                `;
+
+                const newTagInput = content.querySelector('.task-tag-input');
+                if(newTagInput) updateTaskColor(newTagInput);
+            });
+        }
+
+        function upgradeCRMTo3721() {
+            let changed = false;
+            document.querySelectorAll('#crm-table-body tr').forEach(tr => {
+                const d1 = tr.querySelector('.d1-cell');
+                if(d1) {
+                    d1.classList.remove('d1-cell');
+                    d1.classList.add('d3-cell');
+                    changed = true;
+                }
+            });
+            if(changed) {
+                document.querySelectorAll('.crm-date').forEach(input => { calc3721(input); });
+            }
+        }
+
+        // ================= 觸發存檔 =================
+        document.addEventListener('input', function(e) {
+            const t = e.target;
+            if (t.hasAttribute('contenteditable') || t.tagName === 'INPUT' || t.tagName === 'TEXTAREA') {
+                if (t.type === 'checkbox') {
+                    if (t.checked) t.setAttribute('checked', 'checked'); else t.removeAttribute('checked');
+                } else if (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA') {
+                    t.setAttribute('value', t.value);
+                    if(t.tagName === 'TEXTAREA') t.innerHTML = t.value;
+                }
+                saveToLocal();
+            }
+        });
+        document.addEventListener('change', function(e) {
+            const t = e.target;
+            if (t.tagName === 'SELECT') {
+                const options = t.querySelectorAll('option'); options.forEach(opt => opt.removeAttribute('selected'));
+                const selectedOpt = t.options[t.selectedIndex]; if(selectedOpt) selectedOpt.setAttribute('selected', 'selected');
+                saveToLocal();
+            }
+            if (t.tagName === 'DETAILS') { if(t.open) t.setAttribute('open', ''); else t.removeAttribute('open'); saveToLocal(); }
+        });
+
+        // ================= 批量列印銷貨單 =================
+        function printSelectedInvoices() {
+            const checkedBoxes = document.querySelectorAll('.crm-check:checked');
+            if (checkedBoxes.length === 0) {
+                alert('請先勾選要列印或下載的客戶資料喔！'); return;
+            }
+            let printHTML = '';
+            checkedBoxes.forEach((box) => {
+                const tr = box.closest('tr');
+                const name = tr.querySelector('.crm-name').value || '未填寫';
+                const contact = tr.querySelector('.crm-contact') ? tr.querySelector('.crm-contact').value : '未填寫';
+                const items = tr.querySelector('.crm-item').value || '';
+                const amount = tr.querySelector('.crm-amount').value || '';
+                const date = tr.querySelector('.crm-date').value || '';
+
+                printHTML += `
+                <div class="print-page">
+                    <div class="print-header">
+                        <h2>頂超生技 TOP BIOTECH</h2>
+                        <h3>出貨明細單 / 銷貨單</h3>
+                    </div>
+                    <div class="print-info">
+                        <div><strong>下單日期：</strong> <span>${date}</span></div>
+                        <div><strong>客戶名稱：</strong> <span>${name}</span></div>
+                        <div><strong>聯絡方式：</strong> <span>${contact}</span></div>
+                    </div>
+                    <table class="print-table">
+                        <thead>
+                            <tr>
+                                <th>購買商品明細與數量</th>
+                                <th style="width:150px; text-align:center;">小計金額</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="white-space: pre-wrap; min-height: 100px;">${items}</td>
+                                <td style="text-align:center; vertical-align: top;">${amount}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="print-footer">
+                        <div class="signature-box">出貨經手人簽章：________________</div>
+                    </div>
+                </div>`;
+            });
+            document.getElementById('print-area').innerHTML = printHTML;
+            window.print();
+        }
+
+        // ================= Banner 拖曳與上傳 =================
+        function uploadBanner(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById('dashboard-banner-img');
+                    img.src = e.target.result; img.style.display = 'block'; img.style.objectPosition = '50% 50%';
+                    document.getElementById('banner-text').style.display = 'none';
+                    document.getElementById('banner-hint').style.display = 'block';
+                    saveToLocal();
+                }; reader.readAsDataURL(file);
+            }
+        }
+
+        let isDraggingBanner = false, startY = 0, startObjY = 50;
+        const bannerImg = document.getElementById('dashboard-banner-img');
+        bannerImg.addEventListener('mousedown', (e) => {
+            isDraggingBanner = true; startY = e.clientY;
+            const match = (bannerImg.style.objectPosition || '50% 50%').match(/50% (\d+(\.\d+)?)%/);
+            startObjY = match ? parseFloat(match[1]) : 50;
+            e.preventDefault();
+        });
+        window.addEventListener('mousemove', (e) => {
+            if (!isDraggingBanner) return;
+            let newObjY = startObjY - ((e.clientY - startY) * 0.3); 
+            newObjY = Math.max(0, Math.min(100, newObjY));
+            bannerImg.style.objectPosition = `50% ${newObjY}%`;
+        });
+        window.addEventListener('mouseup', () => {
+            if (isDraggingBanner) { isDraggingBanner = false; saveToLocal(); }
+        });
+        // 支援手機拖曳
+        bannerImg.addEventListener('touchstart', (e) => {
+            isDraggingBanner = true; startY = e.touches[0].clientY;
+            const match = (bannerImg.style.objectPosition || '50% 50%').match(/50% (\d+(\.\d+)?)%/);
+            startObjY = match ? parseFloat(match[1]) : 50;
+        }, {passive: true});
+        window.addEventListener('touchmove', (e) => {
+            if (!isDraggingBanner) return;
+            let newObjY = startObjY - ((e.touches[0].clientY - startY) * 0.3); 
+            newObjY = Math.max(0, Math.min(100, newObjY));
+            bannerImg.style.objectPosition = `50% ${newObjY}%`;
+        }, {passive: true});
+        window.addEventListener('touchend', () => {
+            if (isDraggingBanner) { isDraggingBanner = false; saveToLocal(); }
+        });
+
+        // ================= UI 與視圖切換 =================
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active'); element.classList.add('active');
+            if(tabId === 'dashboard') syncCRMToDashboard(); 
+        }
+
+        function switchSubTab(tabId, btn) {
+            const lab = document.getElementById('inspiration-lab');
+            lab.querySelectorAll('.sub-tab-content').forEach(c => c.style.display = 'none');
+            lab.querySelectorAll('.board-view-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).style.display = 'block'; btn.classList.add('active');
+            saveToLocal();
+        }
+
+        function toggleView(prefix, type, btn) {
+            const btns = btn.parentElement.querySelectorAll('.board-view-btn');
+            btns.forEach(b => b.classList.remove('active')); btn.classList.add('active');
+            if(type === 'table') {
+                document.getElementById(prefix + '-table-view').style.display = 'table';
+                document.getElementById(prefix + '-kanban-view').style.display = 'none';
+                document.getElementById(prefix + '-add-btn').style.display = 'inline-flex';
+            } else {
+                syncTableToKanban();
+                document.getElementById(prefix + '-table-view').style.display = 'none';
+                document.getElementById(prefix + '-kanban-view').style.display = 'flex';
+                document.getElementById(prefix + '-add-btn').style.display = 'none';
+            }
+        }
+
+        function syncTableToKanban() {
+            document.getElementById('kb-col-1').innerHTML = ''; document.getElementById('kb-col-2').innerHTML = '';
+            document.getElementById('kb-col-3').innerHTML = ''; document.getElementById('kb-col-4').innerHTML = '';
+            document.querySelectorAll('#content-table-body tr').forEach(tr => {
+                const titleInput = tr.querySelector('td:nth-child(1) input');
+                const detailText = tr.querySelector('td:nth-child(1) textarea');
+                const platformSel = tr.querySelector('td:nth-child(2) select');
+                const statusSel = tr.querySelector('td:nth-child(4) select');
+                if(!titleInput || !statusSel) return;
+                const card = document.createElement('div'); card.className = 'kanban-card';
+                card.innerHTML = `<div style="font-weight:bold; margin-bottom:8px; color:#2c3e50;">${titleInput.value||'未命名'}</div><div style="font-size:0.8rem; color:#64748b; margin-bottom:8px; white-space:pre-wrap;">${detailText?detailText.value:''}</div><span class="badge" style="background:#e2e8f0; color:#475569;">${platformSel?platformSel.value:''}</span>`;
+                const st = statusSel.value;
+                if(st.includes('靈感')) document.getElementById('kb-col-1').appendChild(card);
+                else if(st.includes('撰寫中')) document.getElementById('kb-col-2').appendChild(card);
+                else if(st.includes('排程')) document.getElementById('kb-col-3').appendChild(card);
+                else document.getElementById('kb-col-4').appendChild(card);
+            });
+        }
+
+        // ================= 海報系統 =================
+        let carouselInterval;
+        function initCarousel() { updateCarouselUI(); }
+        function startCarousel() { clearInterval(carouselInterval); carouselInterval = setInterval(() => { nextSlide(); }, 4000); }
+        function updateCarouselUI() {
+            const container = document.getElementById('carousel-slides-container'); if(!container) return;
+            const slides = container.querySelectorAll('.carousel-slide');
+            if(slides.length > 0) {
+                let hasActive = false; slides.forEach(s => { if(s.classList.contains('active')) hasActive = true; });
+                if(!hasActive) slides[0].classList.add('active'); startCarousel();
+            } else { clearInterval(carouselInterval); }
+        }
+        function nextSlide(e) {
+            if(e) { e.stopPropagation(); clearInterval(carouselInterval); startCarousel(); }
+            const container = document.getElementById('carousel-slides-container'); const slides = container.querySelectorAll('.carousel-slide');
+            if(slides.length <= 1) return;
+            let currentIndex = -1; slides.forEach((s, i) => { if(s.classList.contains('active')) currentIndex = i; });
+            if(currentIndex !== -1) { slides[currentIndex].classList.remove('active'); slides[currentIndex].setAttribute('class', 'carousel-slide'); }
+            let nextIndex = currentIndex + 1 >= slides.length ? 0 : currentIndex + 1;
+            slides[nextIndex].classList.add('active'); slides[nextIndex].setAttribute('class', 'carousel-slide active'); saveToLocal();
+        }
+        function prevSlide(e) {
+            if(e) { e.stopPropagation(); clearInterval(carouselInterval); startCarousel(); }
+            const container = document.getElementById('carousel-slides-container'); const slides = container.querySelectorAll('.carousel-slide');
+            if(slides.length <= 1) return;
+            let currentIndex = -1; slides.forEach((s, i) => { if(s.classList.contains('active')) currentIndex = i; });
+            if(currentIndex !== -1) { slides[currentIndex].classList.remove('active'); slides[currentIndex].setAttribute('class', 'carousel-slide'); }
+            let prevIndex = currentIndex - 1 < 0 ? slides.length - 1 : currentIndex - 1;
+            slides[prevIndex].classList.add('active'); slides[prevIndex].setAttribute('class', 'carousel-slide active'); saveToLocal();
+        }
+        function uploadPosters(event) {
+            const files = event.target.files; if (!files || files.length === 0) return;
+            const container = document.getElementById('carousel-slides-container');
+            Array.from(files).forEach((file) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img'); img.className = 'carousel-slide'; img.src = e.target.result; img.setAttribute('src', e.target.result);
+                    container.appendChild(img); updateCarouselUI(); saveToLocal();
+                }; reader.readAsDataURL(file);
+            });
+        }
+        function clearPosters() { if(confirm('確定要清空所有的活動海報嗎？')) { document.getElementById('carousel-slides-container').innerHTML = ''; updateCarouselUI(); saveToLocal(); } }
+
+        // ================= 新增項目與功能 =================
+        let sortAsc = true;
+        function sortContentTable() {
+            const tbody = document.getElementById('content-table-body'); const rows = Array.from(tbody.querySelectorAll('tr'));
+            rows.sort((a, b) => {
+                const dateA = new Date(a.querySelector('td:nth-child(5) input').value || '2099-12-31');
+                const dateB = new Date(b.querySelector('td:nth-child(5) input').value || '2099-12-31');
+                return sortAsc ? dateA - dateB : dateB - dateA;
+            });
+            rows.forEach(row => tbody.appendChild(row)); sortAsc = !sortAsc;
+            document.getElementById('content-sort-btn').innerHTML = sortAsc ? '📅 日期排序 (由遠到近)' : '📅 日期排序 (由近到遠)';
+            saveToLocal();
+        }
+
+        function removeItem(btn) { const row = btn.closest('.item-row') || btn.closest('tr'); if(row) row.remove(); saveToLocal(); syncCRMToDashboard(); }
+
+        function addInspirationItem(containerId, placeholder) {
+            const container = document.getElementById(containerId); const div = document.createElement('div'); div.className = 'item-row';
+            div.innerHTML = `<div class="item-content"><details class="title-expand" open><summary><input type="text" class="task-text" placeholder="${placeholder}"></summary><textarea class="details-textarea" placeholder="在這裡輸入詳細內容與筆記..."></textarea></details></div><button class="btn-delete" onclick="removeItem(this)">🗑️</button>`;
+            container.appendChild(div); saveToLocal();
+        }
+
+        function addInteractionItem() {
+            const container = document.getElementById('interaction-list'); const div = document.createElement('div'); div.className = 'item-row';
+            div.innerHTML = `<div class="item-content"><input type="checkbox"><select><option selected>群組打卡貼文</option><option>FB 限動互動</option><option>社群留言</option><option>Line 私訊</option><option>自訂任務</option></select><input type="text" class="task-text" placeholder="輸入任務細節..."></div><button class="btn-delete" onclick="removeItem(this)">🗑️</button>`;
+            container.appendChild(div); saveToLocal();
+        }
+        
+        function addTaskItem(id) {
+            const container = document.getElementById(id); const div = document.createElement('div'); div.className = 'item-row';
+            div.innerHTML = `
+                <div class="item-content">
+                    <input type="checkbox">
+                    <input type="date" value="${getTodayStr()}" style="width: 120px;">
+                    <input type="text" list="task-tags-list" class="task-tag-input" oninput="updateTaskColor(this)" onchange="updateTaskColor(this)" value="Threads" style="background: #000; color: #fff;" placeholder="選取或輸入...">
+                    <input type="text" class="task-text" placeholder="細節或自訂內容...">
+                </div>
+                <button class="btn-delete" onclick="removeItem(this)">🗑️</button>
+            `;
+            container.appendChild(div);
+            const newTagInput = div.querySelector('.task-tag-input');
+            if(newTagInput) updateTaskColor(newTagInput);
+            saveToLocal();
+        }
+        
+        function addCRMReminderItem() {
+            const container = document.getElementById('crm-reminder-list'); const div = document.createElement('div'); div.className = 'item-row';
+            div.innerHTML = `<div class="item-content"><select style="width:90px;"><option>D3 確認</option><option>D7 體驗</option><option>D21 習慣</option><option>自訂</option></select> <input type="text" class="task-text" placeholder="輸入提醒內容..."></div><button class="btn-delete" onclick="removeItem(this)">🗑️</button>`;
+            container.appendChild(div); saveToLocal();
+        }
+        function addSimpleItem(containerId, placeholder) {
+            const container = document.getElementById(containerId); const div = document.createElement('div'); div.className = 'item-row';
+            div.innerHTML = `<div class="item-content"><input type="text" class="task-text" placeholder="${placeholder}"></div><button class="btn-delete" onclick="removeItem(this)">🗑️</button>`;
+            container.appendChild(div); saveToLocal();
+        }
+        function addContentRow() {
+            const tbody = document.getElementById('content-table-body'); const tr = document.createElement('tr');
+            tr.innerHTML = `<td><details class="title-expand" open><summary><input type="text" class="task-text" placeholder="輸入標題..."></summary><textarea class="details-textarea" placeholder="在這裡輸入詳細內容..."></textarea></details></td><td><select><option>Threads</option><option>FB 粉專</option><option>IG Reels</option><option>Line 社群</option></select></td><td><select><option>專業乾貨</option><option>真實故事</option><option>產品推薦</option><option>互動問答</option></select></td><td><select><option>💡 靈感庫</option><option>✍️ 撰寫中</option><option>⏳ 待排程</option><option>✅ 已發布</option></select></td><td><input type="date" value="${getTodayStr()}"></td><td><button class="btn-delete" onclick="removeItem(this)">🗑️</button></td>`;
+            tbody.appendChild(tr); saveToLocal();
+        }
+        function addReelsRow() {
+            const tbody = document.getElementById('reels-table-body'); const tr = document.createElement('tr');
+            tr.innerHTML = `<td><details class="title-expand" open><summary><input type="text" class="task-text" placeholder="輸入 Reels 標題..."></summary><textarea class="details-textarea" placeholder="Hook: ...&#10;Body: ...&#10;CTA: ..."></textarea></details></td><td><select><option>IG Reels</option><option>FB Reels</option><option>YouTube Shorts</option><option>TikTok</option></select></td><td><select><option>乾貨分享</option><option>日常 Vlog</option><option>產品展示</option><option>跟風搞笑</option></select></td><td><select><option>💡 腳本構思中</option><option>🎬 待拍攝</option><option>✂️ 剪輯中</option><option>✅ 已完成</option></select></td><td><input type="date" value="${getTodayStr()}"></td><td><button class="btn-delete" onclick="removeItem(this)">🗑️</button></td>`;
+            tbody.appendChild(tr); saveToLocal();
+        }
+
+        // ================= CRM 3-7-21 法則邏輯 =================
+        function updateBadgeColor(selectEl) { const colors = { 'A': 'var(--color-a)', 'B': 'var(--color-b)', 'C': 'var(--color-c)', 'D': 'var(--color-d)' }; selectEl.style.color = colors[selectEl.value]; saveToLocal(); }
+        
+        function syncCRMToDashboard() {
+            const autoList = document.getElementById('crm-auto-list'); if(!autoList) return;
+            autoList.innerHTML = ''; const todayStr = getTodayFmt(); let count = 0;
+            document.querySelectorAll('#crm-table-body tr').forEach(tr => {
+                const name = tr.querySelector('.crm-name').value || '未命名';
+                const items = tr.querySelector('.crm-item').value.replace(/\n/g, ' ') || '商品';
+                
+                const d3 = tr.querySelector('.d3-cell') ? tr.querySelector('.d3-cell').textContent : (tr.querySelector('.d1-cell') ? tr.querySelector('.d1-cell').textContent : ''); 
+                const d7 = tr.querySelector('.d7-cell') ? tr.querySelector('.d7-cell').textContent : ''; 
+                const d21 = tr.querySelector('.d21-cell') ? tr.querySelector('.d21-cell').textContent : '';
+                
+                const addHTML = (badge, text, color) => {
+                    count++; const div = document.createElement('div'); div.className = 'item-row'; div.style.borderBottom = 'none';
+                    div.innerHTML = `<div class="item-content"><span class="badge" style="background:${color};">${badge}</span> <span style="font-size:0.85rem; font-weight:600; color:#333;">${text}</span></div>`;
+                    autoList.appendChild(div);
+                };
+                if(d3 === todayStr) addHTML('D3 確認', `${name} (${items} 確認收到)`, '#ffcc00');
+                if(d7 === todayStr) addHTML('D7 體驗', `${name} (詢問初期體驗與感受)`, '#4caf50');
+                if(d21 === todayStr) addHTML('D21 習慣', `${name} (邀請回購或分享見證)`, '#e74c3c');
+            });
+            if(count === 0) autoList.innerHTML = '<div style="color:#94a3b8; font-size:0.85rem; padding:5px;">今日無自動觸發的回訪提醒。</div>';
+        }
+
+        function calc3721(dateInput) {
+            const tr = dateInput.closest('tr'); const arrivalDate = new Date(dateInput.value); if (isNaN(arrivalDate)) return;
+            const addDays = (d, days) => new Date(d.getTime() + days * 86400000);
+            const fmt = (d) => `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+            const todayStr = getTodayFmt();
+            
+            const d3Str = fmt(addDays(arrivalDate, 3)); 
+            const d7Str = fmt(addDays(arrivalDate, 7)); 
+            const d21Str = fmt(addDays(arrivalDate, 21));
+            
+            const cD3 = tr.querySelector('.d3-cell') || tr.querySelector('.d1-cell');
+            if(cD3) { cD3.textContent = d3Str; cD3.classList.toggle('alert-text', d3Str === todayStr); }
+            
+            const cD7 = tr.querySelector('.d7-cell');
+            if(cD7) { cD7.textContent = d7Str; cD7.classList.toggle('alert-text', d7Str === todayStr); }
+            
+            const cD21 = tr.querySelector('.d21-cell');
+            if(cD21) { cD21.textContent = d21Str; cD21.classList.toggle('alert-text', d21Str === todayStr); }
+            
+            saveToLocal(); syncCRMToDashboard(); 
+        }
+
+        function addCRMRow() {
+            const tbody = document.getElementById('crm-table-body'); const tr = document.createElement('tr');
+            tr.innerHTML = `<td style="text-align:center;"><input type="checkbox" class="crm-check" style="width: 18px; height: 18px; cursor: pointer;"></td><td><select onchange="updateBadgeColor(this)" style="font-weight:bold; color:var(--color-c);"><option value="A" style="color:var(--color-a);">A 準代理</option><option value="B" style="color:var(--color-b);">B 鐵粉</option><option value="C" style="color:var(--color-c);" selected>C 意向客</option><option value="D" style="color:var(--color-d);">D 新流量</option></select></td><td><input type="text" class="task-text crm-name" placeholder="姓名"></td><td><select class="crm-contact"><option>FB 暱稱</option><option>Line</option><option>IG</option><option>電話</option></select></td><td><textarea class="multi-line-input crm-item" placeholder="例: 速纖凍x2"></textarea></td><td><input type="text" class="task-text crm-amount" placeholder="$金額"></td><td><input type="text" class="task-text crm-pain" placeholder="痛點"></td><td><input type="date" class="crm-date" value="${getTodayStr()}" onchange="calc3721(this)" style="width:100%;"></td><td class="d3-cell">--/--</td><td class="d7-cell">--/--</td><td class="d21-cell">--/--</td><td><textarea class="multi-line-input crm-remark" placeholder="備註..."></textarea></td><td><button class="btn-delete" onclick="removeItem(this)">🗑️</button></td>`;
+            tbody.appendChild(tr); calc3721(tr.querySelector('td:nth-child(8) input')); 
+        }
+
+        function generateCalendar() {
+            const grid = document.getElementById('full-calendar'); if(!grid) return;
+            grid.innerHTML = '<div class="cal-header" contenteditable="true">週一</div><div class="cal-header" contenteditable="true">週二</div><div class="cal-header" contenteditable="true">週三</div><div class="cal-header" contenteditable="true">週四</div><div class="cal-header" contenteditable="true">週五</div><div class="cal-header" contenteditable="true">週六</div><div class="cal-header" contenteditable="true">週日</div>';
+            for(let i = 1; i <= 35; i++) {
+                const dayDiv = document.createElement('div'); dayDiv.className = 'cal-day';
+                dayDiv.innerHTML = `<div class="cal-date">${i > 30 ? i-30 : i}</div><textarea class="cal-content" placeholder=""></textarea>`;
+                grid.appendChild(dayDiv);
+            }
+        }
+
+        function generateWeeklyReview() {
+            const d = new Date(); const weekStr = `${d.getFullYear()}年${d.getMonth()+1}月 第 ${Math.ceil(d.getDate()/7)} 週`;
+            let contentCount = document.querySelectorAll('#content-table-body tr').length;
+            let reelsCount = document.querySelectorAll('#reels-table-body tr').length;
+            let crmCount = document.querySelectorAll('#crm-table-body tr').length;
+            const template = `【本週品牌營運數據匯總】 (${weekStr})\n\n📈 產出數據：\n- 社群圖文規劃：共 ${contentCount} 篇\n- 短影音 (Reels) 籌備：共 ${reelsCount} 支\n- 新增/追蹤客戶：共 ${crmCount} 位\n\n💡 流量與互動心得 (請手動填寫)：\n1. 本週反應最好的一篇貼文/影片是：\n2. 潛在客戶最常詢問的問題是：\n\n🧘‍♀️ 能量與心態檢視：\n- 這週的工作節奏是否舒適？\n- 下週需要優化或減少的項目是？\n\n🤖 給 AI 的分析指令提示：\n「我是頂超生技的品牌經銷商與自媒體創作者，這是我本週的營運數據與心得。請以溫和自律的風格，幫我分析以上數據，並為我規劃下週 3 篇貼文的主題建議，以及 1 個增進與客戶關係的行動方案。」`;
+            const textarea = document.getElementById('review-textarea');
+            textarea.value = template; textarea.innerHTML = template; saveToLocal();
+        }
+
+        window.onload = function() {
+            if(document.getElementById('full-calendar').children.length === 0) generateCalendar();
+            loadFromLocal();
+        };
+    </script>
+</body>
+</html>
